@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* BesLiving Co-living Platform - Color Theme */
+:root {
+  /* Primary palette - Professional & Friendly */
+  --color-yellow: #f4d35e;
+  --color-yellow-soft: #fef3c7;
+  --color-yellow-dark: #d4a017;
+  
+  --color-turquoise: #2ec4b6;
+  --color-turquoise-soft: #a7f3ec;
+  --color-turquoise-dark: #1a9b8f;
+  
+  --color-purple: #b19cd9;
+  --color-purple-soft: #e9e3f5;
+  --color-purple-dark: #8b6cb8;
+  
+  /* Neutrals */
+  --background: #fefefe;
+  --foreground: #1f2937;
+  --muted: #6b7280;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-yellow: var(--color-yellow);
+  --color-yellow-soft: var(--color-yellow-soft);
+  --color-yellow-dark: var(--color-yellow-dark);
+  --color-turquoise: var(--color-turquoise);
+  --color-turquoise-soft: var(--color-turquoise-soft);
+  --color-turquoise-dark: var(--color-turquoise-dark);
+  --color-purple: var(--color-purple);
+  --color-purple-soft: var(--color-purple-soft);
+  --color-purple-dark: var(--color-purple-dark);
+  --font-sans: var(--font-plus-jakarta);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}

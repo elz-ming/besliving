@@ -1,6 +1,20 @@
 import { SignIn } from "@clerk/nextjs";
 
-export default function AuthPage() {
+function sanitizeRedirect(redirect: string | undefined): string {
+  if (!redirect || typeof redirect !== "string") return "/";
+  const path = redirect.startsWith("/") ? redirect : `/${redirect}`;
+  if (!path.startsWith("/") || path.startsWith("//")) return "/";
+  return path;
+}
+
+export default async function AuthPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string }>;
+}) {
+  const params = await searchParams;
+  const redirectTo = sanitizeRedirect(params?.redirect);
+
   return (
     <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-gradient-to-br from-[#a7f3ec]/20 via-white to-[#e9e3f5]/30 px-4">
       <SignIn
@@ -15,7 +29,7 @@ export default function AuthPage() {
             borderRadius: "0.75rem",
           },
         }}
-        fallbackRedirectUrl="/"
+        fallbackRedirectUrl={redirectTo}
         signUpUrl="/auth"
       />
     </main>

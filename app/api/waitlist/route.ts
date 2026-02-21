@@ -3,21 +3,24 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 
 /**
- * Join waitlist for a property.
+ * Join waitlist for a room.
  * Requires sign-in. Creates waitlist_registration or returns existing.
  */
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json({ error: "Sign in to join waitlist" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Sign in to join waitlist" },
+        { status: 401 }
+      );
     }
 
     const body = await req.json();
-    const { property_id } = body;
-    if (!property_id || typeof property_id !== "string") {
+    const { room_id } = body;
+    if (!room_id || typeof room_id !== "string") {
       return NextResponse.json(
-        { error: "property_id is required" },
+        { error: "room_id is required" },
         { status: 400 }
       );
     }
@@ -36,17 +39,29 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check if already on waitlist
+    const { data: existing } = await supabase
+      .from("waitlist_registrations")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("room_id", room_id)
+      .single();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "Already on waitlist", id: existing.id },
+        { status: 409 }
+      );
+    }
+
     const { data, error } = await supabase
       .from("waitlist_registrations")
-      .upsert(
-        {
-          user_id: user.id,
-          property_id,
-          status: "pending",
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,property_id" }
-      )
+      .insert({
+        user_id: user.id,
+        room_id,
+        status: "pending",
+        updated_at: new Date().toISOString(),
+      })
       .select("id")
       .single();
 
@@ -55,7 +70,9 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[waitlist]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to join waitlist" },
+      {
+        error: err instanceof Error ? err.message : "Failed to join waitlist",
+      },
       { status: 500 }
     );
   }

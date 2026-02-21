@@ -12,12 +12,9 @@ export default async function SuperadminPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-[#fefefe]">
+    <main className="min-h-full bg-[#fefefe]">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold text-[#1f2937]">Superadmin</h1>
-        <p className="mt-1 text-[#6b7280]">Edit roles and permissions of admins</p>
-
-        <div className="mt-8 rounded-xl border border-[#e9e3f5] bg-white p-6">
+        <div className="rounded-xl border border-[#e9e3f5] bg-white p-6">
           <h2 className="font-semibold text-[#8b6cb8]">Admins & superadmins</h2>
           {!admins?.length ? (
             <p className="mt-4 text-[#6b7280]">No admins yet.</p>

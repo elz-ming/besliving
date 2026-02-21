@@ -21,7 +21,7 @@ const signedInLinks = [
 
 const roleLinks = [
   { href: "/user", label: "User" },
-  { href: "/admin", label: "Admin" },
+  { href: "/admin/waitlist", label: "Admin" },
   { href: "/superadmin", label: "Superadmin" },
 ];
 
@@ -45,30 +45,58 @@ export function Header() {
     }
   }, [dropdownOpen]);
 
+  const isAdmin = pathname?.startsWith("/admin");
+  const isSuperadmin = pathname?.startsWith("/superadmin");
+
+  const isPublicPage =
+    !isAdmin &&
+    !isSuperadmin &&
+    pathname !== "/user" &&
+    !pathname?.startsWith("/user/");
+  const currentView = isSuperadmin
+    ? "Superadmin"
+    : isAdmin
+      ? "Admin"
+      : pathname?.startsWith("/user")
+        ? "User"
+        : "Public (Guest)";
+
+  const brandText = isSuperadmin
+    ? "Superadmin Dashboard"
+    : isAdmin
+      ? "Admin Dashboard"
+      : null;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#e9e3f5]/50 bg-white/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link
+          href={
+            isAdmin || isSuperadmin
+              ? isSuperadmin
+                ? "/superadmin"
+                : "/admin/waitlist"
+              : "/"
+          }
+          className="flex items-center gap-2"
+        >
           <span className="text-xl font-bold tracking-tight">
             <span className="text-[#2ec4b6]">Bes</span>
             <span className="text-[#1f2937]">Living</span>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm font-medium transition-colors hover:text-[#2ec4b6] ${
-                pathname === link.href ? "text-[#2ec4b6]" : "text-[#6b7280]"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <SignedIn>
-            {signedInLinks.map((link) => (
+        {brandText && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <span className="text-lg font-semibold text-[#1f2937]">
+              {brandText}
+            </span>
+          </div>
+        )}
+
+        {!isAdmin && !isSuperadmin && (
+          <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 md:flex">
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -79,25 +107,41 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-          </SignedIn>
-        </nav>
+            <SignedIn>
+              {!isPublicPage &&
+                signedInLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm font-medium transition-colors hover:text-[#2ec4b6] ${
+                      pathname === link.href ? "text-[#2ec4b6]" : "text-[#6b7280]"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+            </SignedIn>
+          </nav>
+        )}
 
         <div className="flex items-center gap-4">
           <SignedOut>
-            <div className="hidden gap-2 sm:flex">
-              <Link
-                href="/auth"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-[#6b7280] transition-colors hover:bg-[#e9e3f5]/50 hover:text-[#8b6cb8]"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/auth"
-                className="rounded-lg bg-[#2ec4b6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1a9b8f]"
-              >
-                Get Started
-              </Link>
-            </div>
+            {!isAdmin && !isSuperadmin && (
+              <div className="hidden gap-2 sm:flex">
+                <Link
+                  href="/auth"
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-[#6b7280] transition-colors hover:bg-[#e9e3f5]/50 hover:text-[#8b6cb8]"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/auth"
+                  className="rounded-lg bg-[#2ec4b6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1a9b8f]"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
           </SignedOut>
           <SignedIn>
             <UserButton
@@ -121,7 +165,7 @@ export function Header() {
               >
                 <span className="md:sr-only">Role switcher</span>
                 <span className="hidden md:inline">View as:</span>
-                <span className="text-[#2ec4b6]">Switch view</span>
+                <span className="text-[#2ec4b6]">{currentView}</span>
                 <svg
                   className={`size-4 transition ${dropdownOpen ? "rotate-180" : ""}`}
                   fill="none"

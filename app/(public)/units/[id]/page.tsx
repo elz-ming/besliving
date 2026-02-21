@@ -86,34 +86,39 @@ export default async function UnitDetailPage({
             ) : (
               <ul className="mt-4 space-y-4">
                 {(rooms ?? []).map((r) => (
-                  <li
-                    key={r.id}
-                    className="flex items-center justify-between rounded-xl border border-[#e9e3f5] p-4"
-                  >
-                    <div>
-                      <span className="font-medium text-[#1f2937]">{r.name}</span>
-                      {r.size_sqm != null && (
-                        <span className="ml-2 text-sm text-[#6b7280]">
-                          {r.size_sqm} m²
+                  <li key={r.id}>
+                    <Link
+                      href={`/units/${id}/rooms/${r.id}`}
+                      className="flex items-center justify-between rounded-xl border border-[#e9e3f5] p-4 transition-colors hover:border-[#b19cd9]/50 hover:bg-[#fefefe]"
+                    >
+                      <div>
+                        <span className="font-medium text-[#1f2937] group-hover:text-[#2ec4b6]">
+                          {r.name}
                         </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`rounded-full px-3 py-0.5 text-xs font-medium ${
-                          r.availability_status === "available"
-                            ? "bg-[#a7f3ec] text-[#1a9b8f]"
-                            : r.availability_status === "reserved"
-                              ? "bg-[#fef3c7] text-[#d4a017]"
-                              : "bg-[#e9e3f5] text-[#8b6cb8]"
-                        }`}
-                      >
-                        {r.availability_status}
-                      </span>
-                      <span className="font-semibold text-[#2ec4b6]">
-                        ${Number(r.price).toLocaleString()}/mo
-                      </span>
-                    </div>
+                        {r.size_sqm != null && (
+                          <span className="ml-2 text-sm text-[#6b7280]">
+                            {r.size_sqm} m²
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`rounded-full px-3 py-0.5 text-xs font-medium ${
+                            r.availability_status === "available"
+                              ? "bg-[#a7f3ec] text-[#1a9b8f]"
+                              : r.availability_status === "reserved"
+                                ? "bg-[#fef3c7] text-[#d4a017]"
+                                : "bg-[#e9e3f5] text-[#8b6cb8]"
+                          }`}
+                        >
+                          {r.availability_status}
+                        </span>
+                        <span className="font-semibold text-[#2ec4b6]">
+                          RM {Number(r.price).toLocaleString()}/mo
+                        </span>
+                        <span className="text-[#6b7280]" aria-hidden>→</span>
+                      </div>
+                    </Link>
                   </li>
                 ))}
               </ul>

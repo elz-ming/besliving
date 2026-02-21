@@ -21,11 +21,7 @@ export default async function AdminUnitsPage() {
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-[#fefefe]">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-[#1f2937]">Units</h1>
-            <p className="mt-1 text-[#6b7280]">Manage listing units</p>
-          </div>
+        <div className="flex items-center justify-end">
           <Link
             href="/admin/units/new"
             className="rounded-lg bg-[#2ec4b6] px-4 py-2 text-sm font-medium text-white hover:bg-[#1a9b8f]"

@@ -217,13 +217,15 @@ COMMENT ON COLUMN "public"."rooms"."has_private_toilet" IS 'En-suite or shared b
 
 CREATE TABLE IF NOT EXISTS "public"."tenancies" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "property_id" "uuid" NOT NULL,
+    "property_id" "uuid",
     "tenant_id" "uuid" NOT NULL,
     "start_date" "date" NOT NULL,
     "end_date" "date",
     "status" "text" DEFAULT 'active'::"text" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "room_id" "uuid",
+    CONSTRAINT "tenancies_room_or_property" CHECK ((("room_id" IS NOT NULL) OR ("property_id" IS NOT NULL))),
     CONSTRAINT "tenancies_status_check" CHECK (("status" = ANY (ARRAY['active'::"text", 'ended'::"text", 'cancelled'::"text"])))
 );
 
@@ -232,6 +234,10 @@ ALTER TABLE "public"."tenancies" OWNER TO "postgres";
 
 
 COMMENT ON TABLE "public"."tenancies" IS 'Active and past tenancies. One tenant per property room/slot.';
+
+
+
+COMMENT ON COLUMN "public"."tenancies"."room_id" IS 'Room-level tenancy. Prefer over property_id for units/rooms model.';
 
 
 
@@ -411,6 +417,10 @@ CREATE INDEX "idx_tenancies_property_id" ON "public"."tenancies" USING "btree" (
 
 
 
+CREATE INDEX "idx_tenancies_room_id" ON "public"."tenancies" USING "btree" ("room_id");
+
+
+
 CREATE INDEX "idx_tenancies_status" ON "public"."tenancies" USING "btree" ("status");
 
 
@@ -508,6 +518,11 @@ ALTER TABLE ONLY "public"."rooms"
 
 ALTER TABLE ONLY "public"."tenancies"
     ADD CONSTRAINT "tenancies_property_id_fkey" FOREIGN KEY ("property_id") REFERENCES "public"."properties"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."tenancies"
+    ADD CONSTRAINT "tenancies_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "public"."rooms"("id") ON DELETE CASCADE;
 
 
 

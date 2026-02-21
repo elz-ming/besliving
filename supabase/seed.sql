@@ -24,7 +24,13 @@ VALUES
   ('20000000-0000-4000-8000-000000000004', 'SkyAwani 3 Residences', 'condo', 'Kuala Lumpur', 'Setapak, KL', 'Contemporary high-rise living by SkyWorld.', true),
   ('20000000-0000-4000-8000-000000000005', 'SkyAwani 4 Residences', 'condo', 'Kuala Lumpur', 'Setapak, KL', 'Modern city living by SkyWorld.', true),
   ('20000000-0000-4000-8000-000000000006', 'SkyAwani 5 Residences', 'condo', 'Kuala Lumpur', 'Sentul, KL', 'Latest addition to SkyAwani series.', true)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  title = EXCLUDED.title,
+  property_type = EXCLUDED.property_type,
+  city = EXCLUDED.city,
+  address = EXCLUDED.address,
+  description = EXCLUDED.description,
+  is_published = EXCLUDED.is_published;
 
 -- ================================
 -- ROOMS: IDEAL PROPERTY GROUP (Penang)

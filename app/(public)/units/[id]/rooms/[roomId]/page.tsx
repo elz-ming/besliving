@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createPublicSupabase, createServerSupabase } from "@/lib/supabase/server";
 import { auth } from "@clerk/nextjs/server";
 import { RoomDetailClient } from "./RoomDetailClient";
 
@@ -10,7 +10,7 @@ export default async function RoomDetailPage({
   params: Promise<{ id: string; roomId: string }>;
 }) {
   const { id: unitId, roomId } = await params;
-  const supabase = createServerSupabase();
+  const supabase = createPublicSupabase();
   const { userId } = await auth();
 
   const { data: room } = await supabase
@@ -85,16 +85,17 @@ export default async function RoomDetailPage({
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-media/${coverPath}`
     : "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=500&fit=crop";
 
-  // Check if current user is already on waitlist
+  // Check if current user is already on waitlist (needs service role for users table)
   let alreadyOnWaitlist = false;
   if (userId) {
-    const { data: user } = await supabase
+    const adminSupabase = createServerSupabase();
+    const { data: user } = await adminSupabase
       .from("users")
       .select("id")
       .eq("clerk_id", userId)
       .single();
     if (user) {
-      const { data: existing } = await supabase
+      const { data: existing } = await adminSupabase
         .from("waitlist_registrations")
         .select("id")
         .eq("user_id", user.id)

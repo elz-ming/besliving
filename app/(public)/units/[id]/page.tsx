@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createPublicSupabase } from "@/lib/supabase/server";
 import Image from "next/image";
 
 export default async function UnitDetailPage({
@@ -8,7 +8,7 @@ export default async function UnitDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = createServerSupabase();
+  const supabase = createPublicSupabase();
 
   const { data: unit } = await supabase
     .from("units")

@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createPublicSupabase } from "@/lib/supabase/server";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+
 export default async function CataloguePage() {
-  const supabase = createServerSupabase();
+  const supabase = createPublicSupabase();
   const { data: units } = await supabase
     .from("units")
     .select(`

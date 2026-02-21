@@ -26,8 +26,8 @@ Use one of the methods below to apply the schema to a fresh production Supabase 
    This applies all migrations in `supabase/migrations/` in order.
 
 4. **(Optional) Seed initial data**
-   In Supabase Dashboard → SQL Editor, run the contents of `supabase/seed.sql`.
-   Skip this if you want a blank production DB.
+   Run migrations first, then in Supabase Dashboard → SQL Editor, run `supabase/seed.sql`.
+   If "Browse units" / catalogue is empty: Table Editor → `units` — ensure `is_published` = true. To fix: `UPDATE public.units SET is_published = true;` in SQL Editor.
 
 ---
 
@@ -48,6 +48,15 @@ For each file: open it → copy contents → paste into SQL Editor → Run.
 Then optionally run `supabase/seed.sql` for sample units/rooms.
 
 ---
+
+## Clerk redirect (role-based routing)
+
+Add to `.env` so users go to the right dashboard after sign-in:
+
+```
+NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL=/auth/callback
+NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/auth/callback
+```
 
 ## After schema is applied
 

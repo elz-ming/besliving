@@ -1,13 +1,9 @@
-import { redirect } from "next/navigation";
 import { getAppUser } from "@/lib/db/user";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Link from "next/link";
 
 export default async function SuperadminPage() {
   const user = await getAppUser();
-  if (!user) redirect("/auth");
-  if (user.role !== "superadmin") redirect("/dashboard");
-
   const supabase = createServerSupabase();
   const { data: admins } = await supabase
     .from("users")
@@ -19,9 +15,7 @@ export default async function SuperadminPage() {
     <main className="min-h-[calc(100vh-4rem)] bg-[#fefefe]">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-bold text-[#1f2937]">Superadmin</h1>
-        <p className="mt-1 text-[#6b7280]">
-          Edit roles and permissions of admins
-        </p>
+        <p className="mt-1 text-[#6b7280]">Edit roles and permissions of admins</p>
 
         <div className="mt-8 rounded-xl border border-[#e9e3f5] bg-white p-6">
           <h2 className="font-semibold text-[#8b6cb8]">Admins & superadmins</h2>
@@ -48,7 +42,7 @@ export default async function SuperadminPage() {
                       {a.role}
                     </span>
                   </div>
-                  {a.id !== user.id && a.role === "admin" && (
+                  {a.id !== user?.id && a.role === "admin" && (
                     <Link
                       href={`/superadmin/admins/${a.id}`}
                       className="text-sm font-medium text-[#2ec4b6] hover:underline"

@@ -62,3 +62,50 @@ INSERT INTO public.properties (
     ARRAY['Pool', 'BBQ', 'Co-working']
   )
 ON CONFLICT (id) DO NOTHING;
+
+-- Sample units (new rental listing schema)
+INSERT INTO public.units (
+  id,
+  title,
+  property_type,
+  city,
+  address,
+  description,
+  is_published
+) VALUES
+  (
+    'c0000000-0000-0000-0000-000000000001',
+    'Sunset Condo, Penang',
+    'condo',
+    'Penang',
+    '123 Beach Street, George Town',
+    'A vibrant co-living condo with sea views. Shared kitchen, gym, rooftop.',
+    true
+  ),
+  (
+    'c0000000-0000-0000-0000-000000000002',
+    'Heritage Terrace, KL',
+    'landed',
+    'Kuala Lumpur',
+    '45 Jalan Imbi',
+    'Spacious terrace house. Garden, parking, 6 bedrooms.',
+    true
+  ),
+  (
+    'c0000000-0000-0000-0000-000000000003',
+    'Downtown Studio',
+    'apartment',
+    'Kuala Lumpur',
+    '88 Mid Valley',
+    'Compact studio near transit. Perfect for professionals.',
+    false
+  )
+ON CONFLICT (id) DO NOTHING;
+
+-- Sample rooms for first unit
+INSERT INTO public.rooms (unit_id, name, price, size_sqm, availability_status) VALUES
+  ('c0000000-0000-0000-0000-000000000001', 'Master Room', 1200, 18, 'available'),
+  ('c0000000-0000-0000-0000-000000000001', 'Room A', 800, 12, 'available'),
+  ('c0000000-0000-0000-0000-000000000001', 'Room B', 750, 11, 'occupied'),
+  ('c0000000-0000-0000-0000-000000000002', 'Master', 1500, 22, 'available'),
+  ('c0000000-0000-0000-0000-000000000002', 'Room 1', 900, 14, 'reserved');

@@ -11,16 +11,16 @@ const isLocalEnv =
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/properties", label: "Find a Space" },
+  { href: "/catalogue", label: "Catalogue" },
   { href: "/about", label: "About" },
 ];
 
 const signedInLinks = [
-  { href: "/dashboard", label: "My Dashboard" },
+  { href: "/user", label: "My Dashboard" },
 ];
 
 const roleLinks = [
-  { href: "/dashboard", label: "User (waitlist)" },
+  { href: "/user", label: "User" },
   { href: "/admin", label: "Admin" },
   { href: "/superadmin", label: "Superadmin" },
 ];

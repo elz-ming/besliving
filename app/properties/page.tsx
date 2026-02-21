@@ -1,49 +1,24 @@
 import { PropertyCard } from "@/components/PropertyCard";
+import { createServerSupabase } from "@/lib/supabase/server";
 
-const sampleProperties = [
-  {
-    id: "1",
-    name: "Sunrise House",
-    location: "Brooklyn, NY",
-    price: "$1,200",
-    rooms: 6,
-    available: 2,
-    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-    amenities: ["WiFi", "Gym", "Rooftop"],
-  },
-  {
-    id: "2",
-    name: "Ocean View Loft",
-    location: "San Francisco, CA",
-    price: "$1,450",
-    rooms: 4,
-    available: 1,
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
-    amenities: ["Parking", "Laundry", "Garden"],
-  },
-  {
-    id: "3",
-    name: "Green Garden Apartments",
-    location: "Austin, TX",
-    price: "$980",
-    rooms: 8,
-    available: 3,
-    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-    amenities: ["Pool", "BBQ", "Co-working"],
-  },
-  {
-    id: "4",
-    name: "Downtown Studios",
-    location: "Chicago, IL",
-    price: "$1,100",
-    rooms: 5,
-    available: 0,
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop",
-    amenities: ["Concierge", "WiFi", "Storage"],
-  },
-];
+export default async function PropertiesPage() {
+  const supabase = createServerSupabase();
+  const { data: properties } = await supabase
+    .from("properties")
+    .select("id, name, location, price_monthly_cents, rooms_total, rooms_available, image_url, amenities")
+    .order("created_at", { ascending: false });
 
-export default function PropertiesPage() {
+  const forCards = (properties ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    location: p.location,
+    price: `$${(p.price_monthly_cents / 100).toLocaleString()}`,
+    rooms: p.rooms_total,
+    available: p.rooms_available,
+    image: p.image_url ?? "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+    amenities: p.amenities ?? [],
+  }));
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#fefefe] to-[#e9e3f5]/20">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -71,9 +46,15 @@ export default function PropertiesPage() {
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {sampleProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
+          {forCards.length ? (
+            forCards.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))
+          ) : (
+            <p className="col-span-full text-center text-[#6b7280]">
+              No properties yet. Run <code className="rounded bg-[#e9e3f5] px-1">supabase db reset</code> to seed sample data.
+            </p>
+          )}
         </div>
       </div>
     </main>

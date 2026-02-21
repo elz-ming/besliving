@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { UserSync } from "@/components/UserSync";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -25,13 +27,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${plusJakarta.variable} ${geistMono.variable} font-sans antialiased`}
-      >
-        <Header />
+    <ClerkProvider
+      signInUrl="/auth"
+      signUpUrl="/auth"
+      afterSignOutUrl="/"
+    >
+      <html lang="en">
+        <body
+          className={`${plusJakarta.variable} ${geistMono.variable} font-sans antialiased`}
+        >
+          <Header />
+        <UserSync />
         {children}
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

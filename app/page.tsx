@@ -25,7 +25,7 @@ export default function Home() {
                 Browse Spaces
               </Link>
               <Link
-                href="/register"
+                href="/auth"
                 className="w-full rounded-xl border-2 border-[#b19cd9] bg-white/80 px-8 py-4 text-center font-semibold text-[#8b6cb8] backdrop-blur transition-all hover:bg-[#e9e3f5] sm:w-auto"
               >
                 Create Account

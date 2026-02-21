@@ -1,6 +1,7 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { syncUserToDb } from "@/lib/db/sync-user";
 
 /**
  * Sync Clerk user to Supabase.
@@ -10,49 +11,20 @@ import { createServerSupabase } from "@/lib/supabase/server";
 export async function POST() {
   try {
     const { userId } = await auth();
-    const user = await currentUser();
-    if (!userId || !user) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = createServerSupabase();
+    await syncUserToDb(userId);
 
-    const { data: existing } = await supabase
+    const supabase = createServerSupabase();
+    const { data } = await supabase
       .from("users")
       .select("id")
       .eq("clerk_id", userId)
       .single();
 
-    const email = user.emailAddresses[0]?.emailAddress ?? null;
-    const firstSuperadminEmail = process.env.FIRST_SUPERADMIN_EMAIL?.trim().toLowerCase();
-    const isBootstrapSuperadmin =
-      !!firstSuperadminEmail && email?.toLowerCase() === firstSuperadminEmail;
-
-    const userPayload = {
-      clerk_id: userId,
-      email,
-      full_name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || null,
-      avatar_url: user.imageUrl ?? null,
-      last_sign_in_at: new Date().toISOString(),
-    };
-
-    if (existing) {
-      const updatePayload = isBootstrapSuperadmin
-        ? { ...userPayload, role: "superadmin" as const }
-        : userPayload;
-      await supabase.from("users").update(updatePayload).eq("id", existing.id);
-      return NextResponse.json({ action: "sign_in", id: existing.id });
-    } else {
-      const role = isBootstrapSuperadmin ? "superadmin" : "user";
-      const { data: inserted, error } = await supabase
-        .from("users")
-        .insert({ ...userPayload, role })
-        .select("id")
-        .single();
-
-      if (error) throw error;
-      return NextResponse.json({ action: "sign_up", id: inserted?.id });
-    }
+    return NextResponse.json({ action: "sync", id: data?.id });
   } catch (err) {
     console.error("[user sync]", err);
     return NextResponse.json(

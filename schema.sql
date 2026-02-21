@@ -185,6 +185,12 @@ CREATE TABLE IF NOT EXISTS "public"."rooms" (
     "availability_status" "public"."availability_status_enum" DEFAULT 'available'::"public"."availability_status_enum" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "description" "text",
+    "bed_size" "text",
+    "wardrobe_size" "text",
+    "has_study_table" boolean DEFAULT false,
+    "has_aircond" boolean DEFAULT false,
+    "has_private_toilet" boolean DEFAULT false,
     CONSTRAINT "rooms_price_check" CHECK (("price" >= (0)::numeric)),
     CONSTRAINT "rooms_size_sqm_check" CHECK (("size_sqm" >= (0)::numeric))
 );
@@ -194,6 +200,18 @@ ALTER TABLE "public"."rooms" OWNER TO "postgres";
 
 
 COMMENT ON TABLE "public"."rooms" IS 'Rooms within a unit. Rent by room model.';
+
+
+
+COMMENT ON COLUMN "public"."rooms"."description" IS 'Room-level description for detail page';
+
+
+
+COMMENT ON COLUMN "public"."rooms"."bed_size" IS 'e.g. Single, King, Queen';
+
+
+
+COMMENT ON COLUMN "public"."rooms"."has_private_toilet" IS 'En-suite or shared bathroom';
 
 
 
@@ -264,11 +282,13 @@ COMMENT ON COLUMN "public"."users"."role" IS 'superadmin: edit admin roles/permi
 CREATE TABLE IF NOT EXISTS "public"."waitlist_registrations" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "user_id" "uuid" NOT NULL,
-    "property_id" "uuid" NOT NULL,
+    "property_id" "uuid",
     "status" "text" DEFAULT 'pending'::"text" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "waitlist_registrations_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'offered'::"text", 'accepted'::"text", 'declined'::"text", 'expired'::"text"])))
+    "room_id" "uuid",
+    CONSTRAINT "waitlist_registrations_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'offered'::"text", 'accepted'::"text", 'declined'::"text", 'expired'::"text"]))),
+    CONSTRAINT "waitlist_room_or_property" CHECK ((("room_id" IS NOT NULL) OR ("property_id" IS NOT NULL)))
 );
 
 
@@ -276,6 +296,10 @@ ALTER TABLE "public"."waitlist_registrations" OWNER TO "postgres";
 
 
 COMMENT ON TABLE "public"."waitlist_registrations" IS 'Users on waitlist for properties. When a room opens, they may be offered.';
+
+
+
+COMMENT ON COLUMN "public"."waitlist_registrations"."room_id" IS 'Room-level waitlist. Prefer over property_id for units/rooms model.';
 
 
 
@@ -336,11 +360,6 @@ ALTER TABLE ONLY "public"."users"
 
 ALTER TABLE ONLY "public"."waitlist_registrations"
     ADD CONSTRAINT "waitlist_registrations_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."waitlist_registrations"
-    ADD CONSTRAINT "waitlist_registrations_user_id_property_id_key" UNIQUE ("user_id", "property_id");
 
 
 
@@ -424,11 +443,23 @@ CREATE INDEX "idx_waitlist_property_id" ON "public"."waitlist_registrations" USI
 
 
 
+CREATE INDEX "idx_waitlist_room_id" ON "public"."waitlist_registrations" USING "btree" ("room_id");
+
+
+
 CREATE INDEX "idx_waitlist_status" ON "public"."waitlist_registrations" USING "btree" ("status");
 
 
 
 CREATE INDEX "idx_waitlist_user_id" ON "public"."waitlist_registrations" USING "btree" ("user_id");
+
+
+
+CREATE UNIQUE INDEX "waitlist_user_property_unique" ON "public"."waitlist_registrations" USING "btree" ("user_id", "property_id") WHERE ("property_id" IS NOT NULL);
+
+
+
+CREATE UNIQUE INDEX "waitlist_user_room_unique" ON "public"."waitlist_registrations" USING "btree" ("user_id", "room_id") WHERE ("room_id" IS NOT NULL);
 
 
 
@@ -487,6 +518,11 @@ ALTER TABLE ONLY "public"."tenancies"
 
 ALTER TABLE ONLY "public"."waitlist_registrations"
     ADD CONSTRAINT "waitlist_registrations_property_id_fkey" FOREIGN KEY ("property_id") REFERENCES "public"."properties"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."waitlist_registrations"
+    ADD CONSTRAINT "waitlist_registrations_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "public"."rooms"("id") ON DELETE CASCADE;
 
 
 
